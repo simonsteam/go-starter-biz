@@ -1,8 +1,8 @@
 package user
 
 import (
-	"local/biz/modules/group"
 	"local/biz"
+	"local/biz/modules/group"
 	// "local/biz/mdl"
 
 	"github.com/go-pg/pg"
@@ -17,9 +17,9 @@ var Module = biz.Module{
 			db: db,
 		}
 		var svs SvsI = svsImpl{
-			repo: impl,
+			repo:      impl,
 			groupRepo: groupRepo,
-			vld: *vld.New(), // add custom rule when need
+			vld:       *vld.New(), // add custom rule when need
 		}
 		return impl, svs, nil
 	},

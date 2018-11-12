@@ -11,6 +11,11 @@ go mod download
 
 go build ./...
 
+#create postgresql user
+psql < setup.sql
+#create test template database
+psql < db.sql
+
 go test ./... -v -cover
 ```
 

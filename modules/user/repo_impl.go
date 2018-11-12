@@ -41,15 +41,15 @@ func (r repoImpl) FindByID(id uint32) (*mdl.User, error) {
 	return u, err
 }
 
-func (r repoImpl) SetGroups4User(userID uint32, groupIds *[]string) error {
+func (r repoImpl) SetGroups4User(userID uint32, groupIDs *[]string) error {
 	var userGroups []mdl.UserGroup
-	for _, gid := range *groupIds {
+	for _, gid := range *groupIDs {
 		userGroups = append(userGroups, mdl.UserGroup{
-			UserID: userID,
+			UserID:  userID,
 			GroupID: gid,
 		})
 	}
-	return r.db.RunInTransaction(func(tx *pg.Tx) error{
+	return r.db.RunInTransaction(func(tx *pg.Tx) error {
 		_, err := r.db.Model(&mdl.UserGroup{}).
 			Where("user_id = ?", userID).
 			Delete()

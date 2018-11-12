@@ -1,26 +1,28 @@
 package user_test
 
 import (
-	"local/biz/modules/group"
+	"github.com/stretchr/testify/assert"
 	"local/biz"
 	"local/biz/mdl"
-	"github.com/stretchr/testify/assert"
-	"local/biz/test"
+	"local/biz/modules/group"
 	"local/biz/modules/user"
+	"local/biz/test"
 	"testing"
 )
 
-func addUserAndAssert(t *testing.T, svs user.SvsI, u *mdl.User) uint32{
+func addUserAndAssert(t *testing.T, svs user.SvsI, u *mdl.User) uint32 {
 	id, err := svs.AddUser(nil, u)
 	assert.Nil(t, err)
-	assert.True(t, id >0, "id should be gt 0")
+	assert.True(t, id > 0, "id should be gt 0")
 	return id
 }
 
 func TestRegister(t *testing.T) {
+	t.SkipNow()
 	t.Error("TBD")
 }
 
+// 测试为用户设定角色组..
 func TestSetGroups4User(t *testing.T) {
 	env := test.CreateEnv(t, test.GetTestDatabaseNameForCaller(), true)
 	defer env.Release(t, true)
@@ -28,7 +30,7 @@ func TestSetGroups4User(t *testing.T) {
 	env.ProvideTestDB()
 	biz.BootstrapModules(env.C, group.Module, user.Module)
 
-	env.C.Invoke(func(svs user.SvsI, groupSvs group.SvsI){
+	err := env.C.Invoke(func(svs user.SvsI, groupSvs group.SvsI, groupRepo group.RepoI) {
 		insertU := &test.TestDataVldUsers[0]
 		id := addUserAndAssert(t, svs, insertU)
 
@@ -40,11 +42,16 @@ func TestSetGroups4User(t *testing.T) {
 		}
 
 		err := svs.SetGroups4User(nil, &user.SetGroups4UserParam{
-			UserID: id,
+			UserID:   id,
 			GroupIDs: &groupIDs,
 		})
 		assert.Nil(t, err)
+
+		userGroups, err := groupRepo.ListAllWhereUserIn(id)
+		assert.Nil(t, err)
+		assert.Equal(t, len(groupIDs), len(*userGroups))
 	})
+	assert.Nil(t, err)
 
 }
 
@@ -54,8 +61,8 @@ func TestAddUser(t *testing.T) {
 
 	env.ProvideTestDB()
 	biz.BootstrapModules(env.C, group.Module, user.Module)
-	
-	env.C.Invoke(func(svs user.SvsI){
+
+	err := env.C.Invoke(func(svs user.SvsI) {
 		insertU := &test.TestDataVldUsers[0]
 		id := addUserAndAssert(t, svs, insertU)
 
@@ -63,4 +70,5 @@ func TestAddUser(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, insertU.Username, u.Username)
 	})
+	assert.Nil(t, err)
 }

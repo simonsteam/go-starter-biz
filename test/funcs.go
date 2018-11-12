@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	"go.uber.org/dig"
+	"local/biz/utl"
 	"runtime"
 	"strings"
 	"testing"
@@ -36,7 +37,7 @@ func GetTestDatabaseNameForCaller() string {
 // Env .
 // Some time,test case needs a standalone env for test,it ownn standalone database.This help test cases run parallelly.
 // in the beginning, im considering using docker test, when needed it starts a new database container,but it increasing learning cost and complexity，and may slow down the speed.
-// 
+//
 // lang:zh_CN 有时候会希望单个测试用例运行在被隔离的环境中，有自己独占的数据库，这样方便并行测试.
 // 起初也考虑用docker, 必要的时候运行一个新的数据库容器，但会增加学习成本和复杂度，另外速度上也不太理想。
 type Env struct {
@@ -76,7 +77,7 @@ func (env *Env) DropTestDB(t *testing.T) {
 // CreateEnv create new temp database for test
 func CreateEnv(t *testing.T, testDBName string, dropTestDBFirst bool) *Env {
 	connDB := pg.Connect(&pg.Options{
-		Database: "biz_test",
+		Database: "biz_test_template",
 		User:     TestDBUser,
 		Password: TestPassword,
 		PoolSize: 2,
@@ -84,16 +85,18 @@ func CreateEnv(t *testing.T, testDBName string, dropTestDBFirst bool) *Env {
 	assert.NotNil(t, connDB)
 
 	env := Env{
-		ConnDB: connDB,
+		ConnDB:     connDB,
 		TestDBName: testDBName,
 		C:          dig.New(),
 	}
+
+	env.ConnDB.OnQueryProcessed(utl.FnDBLogger)
 
 	if dropTestDBFirst {
 		env.DropTestDB(t)
 	}
 
-	sql := fmt.Sprintf("create database %s with owner %s", testDBName, TestDBUser)
+	sql := fmt.Sprintf("create database %s owner %s ", testDBName, TestDBUser)
 	_, err := connDB.Exec(sql)
 	assert.Nil(t, err)
 
@@ -104,18 +107,9 @@ func CreateEnv(t *testing.T, testDBName string, dropTestDBFirst bool) *Env {
 	})
 	assert.NotNil(t, env.TestDB)
 
-	env.TestDB.OnQueryProcessed(func(event *pg.QueryProcessedEvent) {
-		query, err := event.FormattedQuery()
-		if err != nil {
-			panic(err)
-		}
-	
-		t.Logf("[DBG] sql: %s \n", query)
-	})
+	env.TestDB.OnQueryProcessed(utl.FnDBLogger)
 
-	t.Log("start do sql migrations in test database")
-	// url := fmt.Sprintf("postgres://%s:%s@localhost:5432/$s?sslmode=disable", TestDBUser, TestPassword, testDBName)
-	biz.MigrationDatabase(env.TestDB)
+	biz.MigrationDatabaseFromSQL(env.TestDB)
 
 	return &env
 }

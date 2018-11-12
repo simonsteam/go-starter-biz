@@ -17,13 +17,23 @@ func TestGetTestDatabaseNameForCaller(t *testing.T) {
 	assert.Equal(t, testDbName, shouldBe, "Should be equal")
 }
 
-
 func TestCreateEnv(t *testing.T) {
-	env := test.CreateEnv(t, "t", true)
-	defer env.Release(t, true)
+	// t.SkipNow()
+	env := test.CreateEnv(t, "tmpdb", true)
+	defer env.Release(t, false)
+
+	biz.MigrationDatabase(env.TestDB)
 
 	var i1, i2 int
 	env.TestDB.QueryOne(pg.Scan(&i1, &i2), `select ?,?`, 233, 666)
 	assert.Equal(t, i1, 233)
 	assert.Equal(t, i2, 666)
+}
+
+func TestMigrationDatabaseFromSQL(t *testing.T) {
+	env := test.CreateEnv(t, "tmpdb", true)
+	defer env.Release(t, true)
+
+	err := biz.MigrationDatabaseFromSQL(env.TestDB)
+	assert.Nil(t, err)
 }

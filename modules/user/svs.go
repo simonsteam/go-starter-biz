@@ -16,7 +16,7 @@ type SvsI interface {
 // SetGroups4UserParam .
 type SetGroups4UserParam struct {
 	GroupIDs *[]string `validate:"required,gt=1"`
-	UserID uint32 `validate:"required"`
+	UserID   uint32    `validate:"required"`
 }
 
 // RegisterUserParam 注册参数

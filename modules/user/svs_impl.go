@@ -12,12 +12,12 @@ import (
 )
 
 type svsImpl struct {
-	repo RepoI
+	repo      RepoI
 	groupRepo group.RepoI
-	vld vld.Validate
+	vld       vld.Validate
 }
 
-func (s svsImpl) Register(ctx context.Context,p *RegisterUserParam) error {
+func (s svsImpl) Register(ctx context.Context, p *RegisterUserParam) error {
 	//TODO
 	return nil
 }
@@ -27,7 +27,7 @@ func (s svsImpl) SetGroups4User(ctx context.Context, p *SetGroups4UserParam) err
 	if err != nil {
 		return err
 	}
-	
+
 	// caller, _ := biz.GetUsrFromContext(ctx)
 	//TODO ACL
 	allGroups, err := s.groupRepo.ListAll()
@@ -35,7 +35,7 @@ func (s svsImpl) SetGroups4User(ctx context.Context, p *SetGroups4UserParam) err
 		return err
 	}
 
-	outer:
+outer:
 	for _, id := range *p.GroupIDs {
 		for _, g := range *allGroups {
 			if g.ID == id {

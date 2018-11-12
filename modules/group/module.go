@@ -2,10 +2,9 @@ package group
 
 import (
 	"local/biz"
-	
+
 	"github.com/go-pg/pg"
 )
-
 
 // Module injection provider and bootstrap
 var Module = biz.Module{

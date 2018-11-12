@@ -13,11 +13,11 @@ const (
 // some test datas, should be used for testing only
 var (
 	TestDataVldGroups = []mdl.Group{{
-		ID:   "TGROUP2",
+		ID:    "TGROUP2",
 		Name:  "nm",
 		Roles: []string{"ADMIN", "USER"},
 	}, {
-		ID:   "TGROUP3",
+		ID:    "TGROUP3",
 		Name:  "管理员",
 		Roles: []string{"ADMIN", "USER", "WATCHER"},
 	}}
@@ -28,5 +28,4 @@ var (
 		Password: "pwd",
 		State:    mdl.UserStateOk,
 	}}
-
 )

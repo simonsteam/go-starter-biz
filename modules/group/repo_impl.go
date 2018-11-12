@@ -36,8 +36,19 @@ func (r repoImpl) DeleteByID(id string) (orm.Result, error) {
 	return rs, err
 }
 
-func (r repoImpl) DeleteAll() (orm.Result, error){
+func (r repoImpl) DeleteAll() (orm.Result, error) {
 	return r.db.Model(&mdl.Group{}).
 		Where("1=1").
 		Delete()
+}
+
+func (r repoImpl) ListAllWhereUserIn(userID uint32) (*[]mdl.Group, error) {
+	sql := `
+	select g.* from groups as g
+	left join user_groups ug on ug.group_id = g.id
+	where ug.user_id = ?
+	`
+	var groups []mdl.Group
+	_, err := r.db.Query(&groups, sql, userID)
+	return &groups, err
 }

@@ -5,6 +5,8 @@ import (
 	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
 	// "errors"
+	"io/ioutil"
+	"log"
 	"runtime"
 	"strings"
 	"time"
@@ -41,7 +43,7 @@ func NewErr(code uint32, msg string) Err {
 }
 
 // BootstrapModules .
-func BootstrapModules(c *dig.Container, modules...Module) {
+func BootstrapModules(c *dig.Container, modules ...Module) {
 	for _, m := range modules {
 		c.Provide(m.Provider)
 	}
@@ -51,20 +53,38 @@ func BootstrapModules(c *dig.Container, modules...Module) {
 }
 
 func MigrationDatabase(db *pg.DB) error {
+	log.Printf("----MigrationDatabase----")
 	opt := &orm.CreateTableOptions{
-		IfNotExists: true,
+		IfNotExists:   true,
 		FKConstraints: true,
 	}
 
 	// register m2m relation,注册多对多关系
 	// orm.RegisterTable((*mdl.UserGroup)(nil))
-	
+
 	for _, m := range []interface{}{
 		(*mdl.User)(nil), (*mdl.Group)(nil), (*mdl.UserGroup)(nil),
 	} {
+		log.Printf(":create table: %T", m)
 		err := db.CreateTable(m, opt)
 		if err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+func MigrationDatabaseFromSQL(db *pg.DB) error {
+	content, err := ioutil.ReadFile(GetModDir() + "/db.sql")
+	if err != nil {
+		return err
+	}
+
+	sqls := strings.Split(string(content), "--##")
+	for _, sql := range sqls {
+		_, e := db.Exec(strings.Trim(sql, "\n"))
+		if e != nil {
+			return e
 		}
 	}
 	return nil

@@ -20,7 +20,7 @@ func TestRepoCreate(t *testing.T) {
 	env.ProvideTestDB()
 	biz.BootstrapModules(env.C, group.Module, user.Module)
 
-	env.C.Invoke(func(repo user.RepoI, groupRepo group.RepoI) {
+	err := env.C.Invoke(func(repo user.RepoI, groupRepo group.RepoI) {
 
 		for _, g := range test.TestDataVldGroups {
 			err := groupRepo.Create(&g)
@@ -40,5 +40,5 @@ func TestRepoCreate(t *testing.T) {
 		}
 
 	})
-
+	assert.Nil(t, err)
 }

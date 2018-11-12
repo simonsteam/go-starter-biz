@@ -12,10 +12,11 @@ const (
 
 // RoleName .
 type RoleName string
+
 // some roles
 const (
-	RoleAdmin RoleName = "admin"
-	RoleHuman RoleName = "human"
+	RoleAdmin  RoleName = "admin"
+	RoleHuman  RoleName = "human"
 	RoleSystem RoleName = "system"
 )
 
