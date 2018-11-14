@@ -8,6 +8,11 @@ import (
 const (
 	TestDBUser   = "biz_test"
 	TestPassword = "pwd"
+
+	DropTestDBBeforeStart     = true
+	DontDropTestDBBeforeStart = false
+	KeepTestDBYes             = true
+	KeepTestDBNo              = false
 )
 
 // some test datas, should be used for testing only
@@ -28,4 +33,32 @@ var (
 		Password: "pwd",
 		State:    mdl.UserStateOk,
 	}}
+
+	TestDataVldConfigs = []mdl.Config{
+		{
+			Key:    "testCfg",
+			Type:   mdl.ConfigTypeString,
+			Name:   "测试name",
+			Module: "test",
+		},
+	}
+
+	TestDataVldBranchs = []mdl.Branch{
+		{
+			No:        "BJ001",
+			Name:      "001Name",
+			Address:   "xxx Street",
+			Tel:       "101-001-002",
+			AdminDesc: "first branch",
+			State:     mdl.BranchStateOff,
+		},
+		{
+			No:        "BJ002",
+			Name:      "002Name",
+			Address:   "xxx Street2",
+			Tel:       "101-001-003",
+			AdminDesc: "second branch",
+			State:     mdl.BranchStateOff,
+		},
+	}
 )

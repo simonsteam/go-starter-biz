@@ -45,7 +45,13 @@ func NewErr(code uint32, msg string) Err {
 // BootstrapModules .
 func BootstrapModules(c *dig.Container, modules ...Module) {
 	for _, m := range modules {
-		c.Provide(m.Provider)
+		if arr, ok := m.Provider.([]interface{}); ok {
+			for _, itfc := range arr {
+				c.Provide(itfc)
+			}
+		} else {
+			c.Provide(m.Provider)
+		}
 	}
 	for _, m := range modules {
 		c.Invoke(m.Bootstrap)

@@ -36,7 +36,7 @@ func (r repoImpl) FindByUsername(username string) (*mdl.User, error) {
 }
 
 func (r repoImpl) FindByID(id uint32) (*mdl.User, error) {
-	u := &mdl.User{ID: id}
+	u := &mdl.User{Base: mdl.Base{ID: id}}
 	err := r.db.Select(u)
 	return u, err
 }

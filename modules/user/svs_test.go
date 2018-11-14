@@ -25,7 +25,7 @@ func TestRegister(t *testing.T) {
 // 测试为用户设定角色组..
 func TestSetGroups4User(t *testing.T) {
 	env := test.CreateEnv(t, test.GetTestDatabaseNameForCaller(), true)
-	defer env.Release(t, true)
+	defer env.Release(t, test.KeepTestDBNo)
 
 	env.ProvideTestDB()
 	biz.BootstrapModules(env.C, group.Module, user.Module)
@@ -57,7 +57,7 @@ func TestSetGroups4User(t *testing.T) {
 
 func TestAddUser(t *testing.T) {
 	env := test.CreateEnv(t, test.GetTestDatabaseNameForCaller(), true)
-	defer env.Release(t, true)
+	defer env.Release(t, test.KeepTestDBNo)
 
 	env.ProvideTestDB()
 	biz.BootstrapModules(env.C, group.Module, user.Module)

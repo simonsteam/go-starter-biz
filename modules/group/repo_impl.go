@@ -44,8 +44,8 @@ func (r repoImpl) DeleteAll() (orm.Result, error) {
 
 func (r repoImpl) ListAllWhereUserIn(userID uint32) (*[]mdl.Group, error) {
 	sql := `
-	select g.* from groups as g
-	left join user_groups ug on ug.group_id = g.id
+	select g.* from "group" as g
+	left join user_group ug on ug.group_id = g.id
 	where ug.user_id = ?
 	`
 	var groups []mdl.Group

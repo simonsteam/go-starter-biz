@@ -32,8 +32,5 @@ func TestCreateEnv(t *testing.T) {
 
 func TestMigrationDatabaseFromSQL(t *testing.T) {
 	env := test.CreateEnv(t, "tmpdb", true)
-	defer env.Release(t, true)
-
-	err := biz.MigrationDatabaseFromSQL(env.TestDB)
-	assert.Nil(t, err)
+	defer env.Release(t, test.KeepTestDBNo)
 }

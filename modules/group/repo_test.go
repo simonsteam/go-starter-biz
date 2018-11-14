@@ -90,7 +90,7 @@ func TestListDelete(t *testing.T) {
 
 func TestListAllWhereUserIn(t *testing.T) {
 	env := test.CreateEnv(t, test.GetTestDatabaseNameForCaller(), true)
-	defer env.Release(t, true)
+	defer env.Release(t, test.KeepTestDBNo)
 
 	env.ProvideTestDB()
 	biz.BootstrapModules(env.C, user.Module, group.Module)
@@ -102,7 +102,8 @@ func TestListAllWhereUserIn(t *testing.T) {
 
 		u := test.TestDataVldUsers[0]
 		id, err := userRepo.Create(&u)
-		assert.True(t, id > 0 && err == nil)
+		assert.Nil(t, err)
+		assert.True(t, id > 0)
 
 		var groupIDs []string
 		for _, g := range groups {

@@ -109,7 +109,8 @@ func CreateEnv(t *testing.T, testDBName string, dropTestDBFirst bool) *Env {
 
 	env.TestDB.OnQueryProcessed(utl.FnDBLogger)
 
-	biz.MigrationDatabaseFromSQL(env.TestDB)
+	err = biz.MigrationDatabaseFromSQL(env.TestDB)
+	assert.Nil(t, err)
 
 	return &env
 }
