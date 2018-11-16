@@ -2,13 +2,13 @@ package test
 
 import (
 	"fmt"
-	"go.uber.org/dig"
 	"local/biz/utl"
 	"runtime"
 	"strings"
 	"testing"
 
 	"local/biz"
+	"local/biz/modules/boot"
 
 	"github.com/go-pg/pg"
 	"github.com/stretchr/testify/assert"
@@ -34,83 +34,142 @@ func GetTestDatabaseNameForCaller() string {
 	return strings.ToLower(biz.TestDatabasePrefix + res)
 }
 
-// Env .
-// Some time,test case needs a standalone env for test,it ownn standalone database.This help test cases run parallelly.
-// in the beginning, im considering using docker test, when needed it starts a new database container,but it increasing learning cost and complexity，and may slow down the speed.
-//
-// lang:zh_CN 有时候会希望单个测试用例运行在被隔离的环境中，有自己独占的数据库，这样方便并行测试.
-// 起初也考虑用docker, 必要的时候运行一个新的数据库容器，但会增加学习成本和复杂度，另外速度上也不太理想。
-type Env struct {
-	ConnDB     *pg.DB // used to create temp test database
-	TestDB     *pg.DB // database actually used in test
-	TestDBName string
-	C          *dig.Container // dependency injection container
-}
-
-// ProvideTestDB provide temp test database as db provider
-func (env *Env) ProvideTestDB() {
-	env.C.Provide(func() *pg.DB {
-		return env.TestDB
-	})
-}
-
-// Release drop test db (if not keep it),close db connection
-func (env *Env) Release(t *testing.T, keepTestDB bool) {
-	err := env.TestDB.Close()
-	assert.Nil(t, err)
-
-	if !keepTestDB {
-		env.DropTestDB(t)
-	}
-
-	err = env.ConnDB.Close()
+func fnDropTestDB(t *testing.T, superDB *pg.DB, dropDBName string) {
+	sql := fmt.Sprintf("drop database if exists %s", dropDBName)
+	_, err := superDB.Exec(sql)
 	assert.Nil(t, err)
 }
-
-// DropTestDB .
-func (env *Env) DropTestDB(t *testing.T) {
-	sql := fmt.Sprintf("drop database if exists %s", env.TestDBName)
-	_, err := env.ConnDB.Exec(sql)
-	assert.Nil(t, err)
-}
-
-// CreateEnv create new temp database for test
-func CreateEnv(t *testing.T, testDBName string, dropTestDBFirst bool) *Env {
-	connDB := pg.Connect(&pg.Options{
+func NewHelper(t *testing.T, testDBName string, dropTestDBFirst bool) Helper {
+	superDB := pg.Connect(&pg.Options{
 		Database: "biz_test_template",
 		User:     TestDBUser,
 		Password: TestPassword,
 		PoolSize: 2,
 	})
-	assert.NotNil(t, connDB)
+	assert.NotNil(t, superDB)
 
-	env := Env{
-		ConnDB:     connDB,
+	helper := Helper{
+		SuperDB:    superDB,
 		TestDBName: testDBName,
-		C:          dig.New(),
 	}
-
-	env.ConnDB.OnQueryProcessed(utl.FnDBLogger)
+	helper.SuperDB.OnQueryProcessed(utl.FnDBLogger)
 
 	if dropTestDBFirst {
-		env.DropTestDB(t)
+		fnDropTestDB(t, helper.SuperDB, helper.TestDBName)
 	}
 
 	sql := fmt.Sprintf("create database %s owner %s ", testDBName, TestDBUser)
-	_, err := connDB.Exec(sql)
+	_, err := helper.SuperDB.Exec(sql)
 	assert.Nil(t, err)
 
-	env.TestDB = pg.Connect(&pg.Options{
+	testDB := pg.Connect(&pg.Options{
 		Database: testDBName,
 		User:     TestDBUser,
 		Password: TestPassword,
+		PoolSize: 2,
 	})
-	assert.NotNil(t, env.TestDB)
+	biz.MigrationDatabaseFromSQL(testDB) //TODO production env should not migrate database sql
+	testDB.Close()
 
-	env.TestDB.OnQueryProcessed(utl.FnDBLogger)
-
-	err = biz.MigrationDatabaseFromSQL(env.TestDB)
-	assert.Nil(t, err)
-
-	return &env
+	helper.CfgModule = biz.Module{
+		Name:         "TestEnvConfigModule",
+		Introduction: "injected as test env config",
+		Provider: func() *boot.ConfigData {
+			return &boot.ConfigData{
+				DBName:     helper.TestDBName,
+				DBUser:     TestDBUser,
+				DBPassword: TestPassword,
+			}
+		},
+	}
+	return helper
 }
+
+// Helper helper in testing,create test database and provide test config
+type Helper struct {
+	SuperDB    *pg.DB
+	TestDBName string
+	CfgModule  biz.Module
+}
+
+// Close close helper,and drop test database
+func (helper Helper) Close(t *testing.T, dropTestDB bool) {
+	if dropTestDB {
+		fnDropTestDB(t, helper.SuperDB, helper.TestDBName)
+	}
+	err := helper.SuperDB.Close()
+	assert.Nil(t, err)
+}
+
+// TestEnv .
+// Some time,test case needs a standalone env for test,it ownn standalone database.This help test cases run parallelly.
+// in the beginning, im considering using docker test, when needed it starts a new database container,but it increasing learning cost and complexity，and may slow down the speed.
+//
+// lang:zh_CN 有时候会希望单个测试用例运行在被隔离的环境中，有自己独占的数据库，这样方便并行测试.
+// 起初也考虑用docker, 必要的时候运行一个新的数据库容器，但会增加学习成本和复杂度，另外速度上也不太理想。
+// type TestEnv struct {
+// 	biz.Env
+// 	ConnDB     *pg.DB // used to create temp test database
+// 	TestDBName string
+// }
+
+// // Close drop test db (if not keep it),close db connection
+// func (env *TestEnv) Close(t *testing.T, keepTestDB bool) {
+// 	errs := env.Env.Close()
+// 	assert.Equal(t, 0, len(errs))
+
+// 	if !keepTestDB {
+// 		env.DropTestDB(t)
+// 	}
+
+// 	err := env.ConnDB.Close()
+// 	assert.Nil(t, err)
+// }
+
+// // DropTestDB .
+// func (env *TestEnv) DropTestDB(t *testing.T) {
+// 	sql := fmt.Sprintf("drop database if exists %s", env.TestDBName)
+// 	_, err := env.ConnDB.Exec(sql)
+// 	assert.Nil(t, err)
+// }
+
+// // CreateEnv create new temp database for test
+// func CreateEnv(t *testing.T, testDBName string, dropTestDBFirst bool) *TestEnv {
+// 	connDB := pg.Connect(&pg.Options{
+// 		Database: "biz_test_template",
+// 		User:     TestDBUser,
+// 		Password: TestPassword,
+// 		PoolSize: 2,
+// 	})
+// 	assert.NotNil(t, connDB)
+
+// 	env := Env{
+// 		ConnDB:     connDB,
+// 		TestDBName: testDBName,
+// 		C:          dig.New(),
+// 	}
+
+// 	env.ConnDB.OnQueryProcessed(utl.FnDBLogger)
+
+// 	if dropTestDBFirst {
+// 		env.DropTestDB(t)
+// 	}
+
+// 	sql := fmt.Sprintf("create database %s owner %s ", testDBName, TestDBUser)
+// 	_, err := connDB.Exec(sql)
+// 	assert.Nil(t, err)
+
+// 	env.TestDB = pg.Connect(&pg.Options{
+// 		Database: testDBName,
+// 		User:     TestDBUser,
+// 		Password: TestPassword,
+// 	})
+// 	assert.NotNil(t, env.TestDB)
+
+// 	env.TestDB.OnQueryProcessed(utl.FnDBLogger)
+
+// 	err = biz.MigrationDatabaseFromSQL(env.TestDB)
+// 	assert.Nil(t, err)
+
+// 	return &env
+// }

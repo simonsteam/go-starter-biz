@@ -6,6 +6,7 @@ import (
 
 	"local/biz"
 	"local/biz/mdl"
+	"local/biz/modules/boot"
 	"local/biz/modules/group"
 	"local/biz/test"
 
@@ -14,12 +15,6 @@ import (
 )
 
 func TestCreate(t *testing.T) {
-	env := test.CreateEnv(t, test.GetTestDatabaseNameForCaller(), true)
-	defer env.Release(t, false)
-
-	env.ProvideTestDB()
-	biz.BootstrapModules(env.C, group.Module)
-
 	cases := []struct {
 		Name   string
 		Before func(group.RepoI)
@@ -40,7 +35,14 @@ func TestCreate(t *testing.T) {
 		},
 	}
 
-	err := env.C.Invoke(func(repo group.RepoI) {
+	helper := test.NewHelper(t, test.GetTestDatabaseNameForCaller(), test.DropTestDB)
+	defer helper.Close(t, test.DropTestDB)
+
+	env := biz.NewEnv(helper.CfgModule, boot.DBModule, group.Module)
+	env.Boot()
+	defer env.Close()
+
+	err := env.Container.Invoke(func(repo group.RepoI) {
 		for _, c := range cases {
 			if c.Before != nil {
 				c.Before(repo)
@@ -59,13 +61,14 @@ func TestCreate(t *testing.T) {
 }
 
 func TestListDelete(t *testing.T) {
-	env := test.CreateEnv(t, test.GetTestDatabaseNameForCaller(), true)
-	defer env.Release(t, false)
+	helper := test.NewHelper(t, test.GetTestDatabaseNameForCaller(), test.DropTestDB)
+	defer helper.Close(t, test.DropTestDB)
 
-	env.ProvideTestDB()
-	biz.BootstrapModules(env.C, group.Module)
+	env := biz.NewEnv(helper.CfgModule, boot.DBModule, group.Module)
+	env.Boot()
+	defer env.Close()
 
-	err := env.C.Invoke(func(repo group.RepoI) {
+	err := env.Container.Invoke(func(repo group.RepoI) {
 		testDataLen := len(test.TestDataVldGroups)
 
 		for _, g := range test.TestDataVldGroups {
@@ -89,13 +92,14 @@ func TestListDelete(t *testing.T) {
 }
 
 func TestListAllWhereUserIn(t *testing.T) {
-	env := test.CreateEnv(t, test.GetTestDatabaseNameForCaller(), true)
-	defer env.Release(t, test.KeepTestDBNo)
+	helper := test.NewHelper(t, test.GetTestDatabaseNameForCaller(), test.DropTestDB)
+	defer helper.Close(t, test.DropTestDB)
 
-	env.ProvideTestDB()
-	biz.BootstrapModules(env.C, user.Module, group.Module)
+	env := biz.NewEnv(helper.CfgModule, boot.DBModule, group.Module, user.Module)
+	env.Boot()
+	defer env.Close()
 
-	err := env.C.Invoke(func(userRepo user.RepoI, repo group.RepoI, db *pg.DB) {
+	err := env.Container.Invoke(func(userRepo user.RepoI, repo group.RepoI, db *pg.DB) {
 		groups := test.TestDataVldGroups
 		err := db.Insert(&groups)
 		assert.Nil(t, err)

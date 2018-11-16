@@ -4,6 +4,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"local/biz"
 	"local/biz/mdl"
+	"local/biz/modules/boot"
 	"local/biz/modules/group"
 	"local/biz/modules/user"
 	"local/biz/test"
@@ -24,13 +25,14 @@ func TestRegister(t *testing.T) {
 
 // 测试为用户设定角色组..
 func TestSetGroups4User(t *testing.T) {
-	env := test.CreateEnv(t, test.GetTestDatabaseNameForCaller(), true)
-	defer env.Release(t, test.KeepTestDBNo)
+	helper := test.NewHelper(t, test.GetTestDatabaseNameForCaller(), test.DropTestDB)
+	defer helper.Close(t, test.DropTestDB)
 
-	env.ProvideTestDB()
-	biz.BootstrapModules(env.C, group.Module, user.Module)
+	env := biz.NewEnv(helper.CfgModule, boot.DBModule, group.Module, user.Module)
+	env.Boot()
+	defer env.Close()
 
-	err := env.C.Invoke(func(svs user.SvsI, groupSvs group.SvsI, groupRepo group.RepoI) {
+	err := env.Container.Invoke(func(svs user.SvsI, groupSvs group.SvsI, groupRepo group.RepoI) {
 		insertU := &test.TestDataVldUsers[0]
 		id := addUserAndAssert(t, svs, insertU)
 
@@ -56,13 +58,14 @@ func TestSetGroups4User(t *testing.T) {
 }
 
 func TestAddUser(t *testing.T) {
-	env := test.CreateEnv(t, test.GetTestDatabaseNameForCaller(), true)
-	defer env.Release(t, test.KeepTestDBNo)
+	helper := test.NewHelper(t, test.GetTestDatabaseNameForCaller(), test.DropTestDB)
+	defer helper.Close(t, test.DropTestDB)
 
-	env.ProvideTestDB()
-	biz.BootstrapModules(env.C, group.Module, user.Module)
+	env := biz.NewEnv(helper.CfgModule, boot.DBModule, group.Module, user.Module)
+	env.Boot()
+	defer env.Close()
 
-	err := env.C.Invoke(func(svs user.SvsI) {
+	err := env.Container.Invoke(func(svs user.SvsI) {
 		insertU := &test.TestDataVldUsers[0]
 		id := addUserAndAssert(t, svs, insertU)
 

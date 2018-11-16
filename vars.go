@@ -29,5 +29,6 @@ var (
 
 // some vars
 var (
-	AllRoleNames = []RoleName{RoleAdmin, RoleHuman, RoleSystem}
+	AllRoleNames      = []RoleName{RoleAdmin, RoleHuman, RoleSystem}
+	ZeroBootCondition = []BootCondition{}
 )

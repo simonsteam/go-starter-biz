@@ -13,6 +13,8 @@ const (
 	DontDropTestDBBeforeStart = false
 	KeepTestDBYes             = true
 	KeepTestDBNo              = false
+	DropTestDB                = true
+	NotDropTestDB             = false
 )
 
 // some test datas, should be used for testing only

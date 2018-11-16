@@ -3,6 +3,10 @@
 
 [中文readme](README_CN.md)
 
+## Status
+
+In develop, **Not stable!**
+
 ## What is this project do?
 Connect to postgresql, write your business code.
 

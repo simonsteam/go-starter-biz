@@ -3,6 +3,7 @@ package branch_test
 import (
 	"github.com/stretchr/testify/assert"
 	"local/biz"
+	"local/biz/modules/boot"
 	"local/biz/modules/branch"
 	"local/biz/modules/group"
 	"local/biz/modules/user"
@@ -17,13 +18,14 @@ func assertNilErrAndIDGt0(t *testing.T, id uint32, err error) {
 }
 
 func TestCRUD(t *testing.T) {
-	env := test.CreateEnv(t, test.GetTestDatabaseNameForCaller(), test.DropTestDBBeforeStart)
-	defer env.Release(t, test.KeepTestDBYes)
+	helper := test.NewHelper(t, test.GetTestDatabaseNameForCaller(), test.DropTestDB)
+	defer helper.Close(t, test.DropTestDB)
 
-	env.ProvideTestDB()
-	biz.BootstrapModules(env.C, user.Module, branch.Module, group.Module)
+	env := biz.NewEnv(helper.CfgModule, boot.DBModule, user.Module, branch.Module, group.Module)
+	env.Boot()
+	defer env.Close()
 
-	err := env.C.Invoke(func(uRepo user.RepoI, repo branch.RepoI) {
+	err := env.Container.Invoke(func(uRepo user.RepoI, repo branch.RepoI) {
 		u := test.TestDataVldUsers[0]
 		id, err := uRepo.Create(&u)
 		assertNilErrAndIDGt0(t, id, err)

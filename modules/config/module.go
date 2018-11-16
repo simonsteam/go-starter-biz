@@ -3,7 +3,8 @@ package config
 import (
 	"github.com/go-pg/pg"
 	"local/biz"
-	"log"
+	"local/biz/mdl"
+	// ,"log"
 )
 
 var Module = biz.Module{
@@ -14,7 +15,11 @@ var Module = biz.Module{
 			}
 		},
 	},
-	Bootstrap: func() {
-		log.Println("Module config bootstraped!")
-	},
+}
+
+// RepoI .
+type RepoI interface {
+	Create(*mdl.Config) (uint32, error)
+	SelectAll() (*[]mdl.Config, error)
+	Update(*mdl.Config) error
 }

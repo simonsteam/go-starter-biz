@@ -12,8 +12,6 @@ import (
 	"time"
 
 	"local/biz/mdl"
-
-	"go.uber.org/dig"
 )
 
 const (
@@ -39,22 +37,6 @@ func NewErr(code uint32, msg string) Err {
 		Code: code,
 		Msg:  msg,
 		Time: time.Now(),
-	}
-}
-
-// BootstrapModules .
-func BootstrapModules(c *dig.Container, modules ...Module) {
-	for _, m := range modules {
-		if arr, ok := m.Provider.([]interface{}); ok {
-			for _, itfc := range arr {
-				c.Provide(itfc)
-			}
-		} else {
-			c.Provide(m.Provider)
-		}
-	}
-	for _, m := range modules {
-		c.Invoke(m.Bootstrap)
 	}
 }
 

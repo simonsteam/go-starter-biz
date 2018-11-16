@@ -23,3 +23,17 @@ func FnDBLogger(event *pg.QueryProcessedEvent) {
 
 	log.Printf("[DBG] sql: %s \n", query)
 }
+
+// SliceDistinct remove same item in slice
+func SliceDistinct(slc *[]interface{}) *[]interface{} {
+	m := map[interface{}]bool{}
+
+	var results []interface{}
+	for _, ele := range *slc {
+		if _, ok := m[ele]; !ok {
+			m[ele] = true
+			results = append(results, ele)
+		}
+	}
+	return &results
+}

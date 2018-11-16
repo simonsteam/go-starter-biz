@@ -2,6 +2,7 @@ package config_test
 
 import (
 	"github.com/stretchr/testify/assert"
+	"local/biz/modules/boot"
 	"testing"
 
 	"local/biz"
@@ -11,13 +12,14 @@ import (
 )
 
 func TestCRUd(t *testing.T) {
-	env := test.CreateEnv(t, test.GetTestDatabaseNameForCaller(), test.DropTestDBBeforeStart)
-	defer env.Release(t, test.KeepTestDBNo)
+	helper := test.NewHelper(t, test.GetTestDatabaseNameForCaller(), test.DropTestDB)
+	defer helper.Close(t, test.DropTestDB)
 
-	env.ProvideTestDB()
-	biz.BootstrapModules(env.C, config.Module)
+	env := biz.NewEnv(helper.CfgModule, boot.DBModule, config.Module)
+	env.Boot()
+	defer env.Close()
 
-	err := env.C.Invoke(func(repo config.RepoI) {
+	err := env.Container.Invoke(func(repo config.RepoI) {
 		cfg := test.TestDataVldConfigs[0]
 
 		id, err := repo.Create(&cfg)

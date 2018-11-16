@@ -1,6 +1,7 @@
 package user_test
 
 import (
+	"local/biz/modules/boot"
 	"testing"
 
 	"local/biz"
@@ -14,13 +15,14 @@ import (
 )
 
 func TestRepoCreate(t *testing.T) {
-	env := test.CreateEnv(t, test.GetTestDatabaseNameForCaller(), true)
-	defer env.Release(t, false)
+	helper := test.NewHelper(t, test.GetTestDatabaseNameForCaller(), test.DropTestDB)
+	defer helper.Close(t, test.DropTestDB)
 
-	env.ProvideTestDB()
-	biz.BootstrapModules(env.C, group.Module, user.Module)
+	env := biz.NewEnv(helper.CfgModule, boot.DBModule, group.Module, user.Module)
+	env.Boot()
+	defer env.Close()
 
-	err := env.C.Invoke(func(repo user.RepoI, groupRepo group.RepoI) {
+	err := env.Container.Invoke(func(repo user.RepoI, groupRepo group.RepoI) {
 
 		for _, g := range test.TestDataVldGroups {
 			err := groupRepo.Create(&g)

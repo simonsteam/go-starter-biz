@@ -2,7 +2,8 @@ package branch
 
 import (
 	"local/biz"
-	"log"
+	"local/biz/mdl"
+	// "log"
 
 	"github.com/go-pg/pg"
 )
@@ -15,8 +16,14 @@ var (
 				db: db,
 			}
 		},
-		Bootstrap: func() {
-			log.Println("Module branch bootstraped")
-		},
 	}
 )
+
+// RepoI branch repository
+type RepoI interface {
+	Create(*mdl.Branch) (uint32, error)
+	SelectByID(uint32) (*mdl.Branch, error)
+	Update(*mdl.Branch) error
+	SelectAll() (*[]mdl.Branch, error)
+	DeleteByID(uint32) error
+}

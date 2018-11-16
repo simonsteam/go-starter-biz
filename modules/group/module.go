@@ -1,7 +1,10 @@
 package group
 
 import (
+	"context"
+	"github.com/go-pg/pg/orm"
 	"local/biz"
+	"local/biz/mdl"
 
 	"github.com/go-pg/pg"
 )
@@ -17,9 +20,20 @@ var Module = biz.Module{
 		}
 		return repo, svs, nil
 	},
-	Bootstrap: func(db *pg.DB) {
-		// db.CreateTable(&mdl.Group{}, &orm.CreateTableOptions{
-		// 	IfNotExists: true,
-		// })
-	},
+}
+
+// RepoI group repository interface
+type RepoI interface {
+	Create(*mdl.Group) error
+	ListAll() (*[]mdl.Group, error)
+	ListAllWhereUserIn(uint32) (*[]mdl.Group, error)
+	DeleteByID(string) (orm.Result, error)
+	DeleteAll() (orm.Result, error)
+}
+
+// SvsI group service interface
+type SvsI interface {
+	Create(context.Context, *mdl.Group) error
+	ListAll(context.Context) (*[]mdl.Group, error)
+	DeleteByID(context.Context, string) error
 }
