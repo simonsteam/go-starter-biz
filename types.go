@@ -152,36 +152,3 @@ type Err struct {
 func (e Err) Error() string {
 	return fmt.Sprintf("Error %d, %s %v", e.Code, e.Msg, e.Time)
 }
-
-// UsrType .
-type UsrType byte
-
-// some user types that may invoke business methods
-const (
-	UsrTypeSys   = 0 // system
-	UsrTypeHuman = 2 //
-)
-
-func (t UsrType) String() string {
-	switch t {
-	case UsrTypeSys:
-		return "system"
-	case UsrTypeHuman:
-		return "human"
-	default:
-		return "unknown"
-	}
-}
-
-// Usr repsent for some "user" that call busines logic
-type Usr struct {
-	ID     uint32
-	Name   string // for log or message
-	Type   UsrType
-	Groups []string
-	Roles  []string
-}
-
-func (u Usr) String() string {
-	return fmt.Sprintf("Usr %d<%s>(%d) in %v, with roles: %s", u.ID, u.Name, u.Type, u.Groups, u.Roles)
-}

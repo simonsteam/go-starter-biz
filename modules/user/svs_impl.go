@@ -28,7 +28,7 @@ func (s svsImpl) SetGroups4User(ctx context.Context, p *SetGroups4UserParam) err
 		return err
 	}
 
-	// caller, _ := biz.GetUsrFromContext(ctx)
+	// caller, _ := biz.GetSubFromContext(ctx)
 	//TODO ACL
 	allGroups, err := s.groupRepo.ListAll()
 	if err != nil {
@@ -62,4 +62,32 @@ func (s svsImpl) AddUser(ctx context.Context, user *mdl.User) (id uint32, err er
 
 func (s svsImpl) FindByID(ctx context.Context, id uint32) (*mdl.User, error) {
 	return s.repo.FindByID(id)
+}
+
+func (s svsImpl) GetUserAsSub(userID uint32) (biz.Sub, error) {
+	nilSub := biz.Sub{}
+	u, err := s.repo.FindByID(userID)
+	if err != nil {
+		return nilSub, err
+	}
+
+	groups, err := s.groupRepo.ListAllWhereUserIn(userID)
+	if err != nil {
+		return nilSub, err
+	}
+	var permissions []string
+	for _, grp := range *groups {
+		for _, per := range grp.Permissions {
+			permissions = append(permissions, per)
+		}
+	}
+
+	return biz.Sub{
+		ID:          u.ID,
+		Name:        u.RealName,
+		Type:        biz.SubTypeHuman,
+		Permissions: permissions,
+		Domains:     []uint32{u.BranchID}, // TODO
+	}, nil
+
 }

@@ -25,10 +25,10 @@ func GetModDir() string {
 	return file[:strings.LastIndex(file, "/")]
 }
 
-// GetUsrFromContext .
-func GetUsrFromContext(ctx context.Context) (Usr, bool) {
-	usr, ok := ctx.Value(CtxUserIDKey).(Usr)
-	return usr, ok
+// GetSubFromContext .
+func GetSubFromContext(ctx context.Context) (Sub, bool) {
+	sub, ok := ctx.Value(CtxUserIDKey).(Sub)
+	return sub, ok
 }
 
 // NewErr create a new error with code,msg,time.Now()
@@ -62,6 +62,7 @@ func MigrationDatabase(db *pg.DB) error {
 	return nil
 }
 
+// MigrationDatabaseFromSQL .
 func MigrationDatabaseFromSQL(db *pg.DB) error {
 	content, err := ioutil.ReadFile(GetModDir() + "/db.sql")
 	if err != nil {

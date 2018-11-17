@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS "user" (
 
 CREATE TABLE IF NOT EXISTS "group" (
     "id" text, "name" text, 
-    "roles" text[], 
+    "permissions" text[], 
     "desc" text, 
     PRIMARY KEY ("id")
 ) 
@@ -61,7 +61,7 @@ CREATE TABLE public.config
     time_val timestamptz,
     int_array_val int[],
     str_array_val text[],
-    upd_roles text[],
+    upd_permissions text[],
     validate jsonb, -- validate rules for val
     visible bool not null,
     PRIMARY KEY (id)

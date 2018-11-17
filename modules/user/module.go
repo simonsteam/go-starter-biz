@@ -41,6 +41,7 @@ type SvsI interface {
 	SetGroups4User(context.Context, *SetGroups4UserParam) error
 	AddUser(context.Context, *mdl.User) (id uint32, err error)
 	FindByID(context.Context, uint32) (*mdl.User, error)
+	GetUserAsSub(uint32) (biz.Sub, error)
 }
 
 // SetGroups4UserParam .

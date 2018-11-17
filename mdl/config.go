@@ -27,9 +27,9 @@ type Config struct {
 	IntArrayVal *[]int64   `json:"intArrayVal"` // 整数数组值
 	StrArrayVal *[]string  `json:"strArrayVal"` // 字符数组值
 
-	UpdRoles []string          `json:"updRoles"`                // roles needed when update config,更新值需要的权限
-	Validate map[string]string `json:"validate"`                // 验证规则
-	Visible  bool              `json:"visible"  sql:",notnull"` // when false, invisible for human, 可见性，false时不可见
+	UpdPermissions []string          `json:"updPermissions"`          // Permissions needed when update config,更新值需要的权限
+	Validate       map[string]string `json:"validate"`                // 验证规则
+	Visible        bool              `json:"visible"  sql:",notnull"` // when false, invisible for human, 可见性，false时不可见
 }
 
 // Simple to simple format

@@ -11,8 +11,8 @@ const (
 	BootConditionCfgDone biz.BootCondition = "cfg_done"
 )
 
-// some var
 var (
+	// CfgModule config module ,provide configs
 	CfgModule = biz.Module{
 		Name:         "env config",
 		Introduction: "read configs and provide config",
@@ -26,6 +26,8 @@ var (
 				return nil
 			}},
 	}
+
+	// DBModule database module,provide pg.DB according to configs
 	DBModule = biz.Module{
 		Name:         "DB Module",
 		Introduction: "provide db connection",

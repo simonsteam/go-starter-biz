@@ -20,13 +20,13 @@ const (
 // some test datas, should be used for testing only
 var (
 	TestDataVldGroups = []mdl.Group{{
-		ID:    "TGROUP2",
-		Name:  "nm",
-		Roles: []string{"ADMIN", "USER"},
+		ID:          "TGROUP2",
+		Name:        "nm",
+		Permissions: []string{"ADMIN", "USER"},
 	}, {
-		ID:    "TGROUP3",
-		Name:  "管理员",
-		Roles: []string{"ADMIN", "USER", "WATCHER"},
+		ID:          "TGROUP3",
+		Name:        "管理员",
+		Permissions: []string{"ADMIN", "USER", "WATCHER"},
 	}}
 
 	TestDataVldUsers = []mdl.User{{
