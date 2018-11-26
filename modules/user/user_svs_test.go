@@ -8,10 +8,11 @@ import (
 	"local/biz/modules/group"
 	"local/biz/modules/user"
 	"local/biz/test"
+	"local/biz/utl"
 	"testing"
 )
 
-func addUserAndAssert(t *testing.T, svs user.SvsI, u *mdl.User) uint32 {
+func addUserAndAssert(t *testing.T, svs user.SvsI, u *mdl.User) int {
 	id, err := svs.AddUser(nil, u)
 	assert.Nil(t, err)
 	assert.True(t, id > 0, "id should be gt 0")
@@ -28,7 +29,7 @@ func TestSetGroups4User(t *testing.T) {
 	helper := test.NewHelper(t, test.GetTestDatabaseNameForCaller(), test.DropTestDB)
 	defer helper.Close(t, test.DropTestDB)
 
-	env := biz.NewEnv(helper.CfgModule, boot.DBModule, group.Module, user.Module)
+	env := biz.NewEnv(helper.CfgModule, boot.DBModule, boot.ToolModule, group.Module, user.Module)
 	env.Boot()
 	defer env.Close()
 
@@ -53,7 +54,7 @@ func TestSetGroups4User(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, len(groupIDs), len(*userGroups))
 	})
-	assert.Nil(t, err)
+	assert.Nil(t, err, utl.FnErrorString(err))
 
 }
 
@@ -61,7 +62,7 @@ func TestAddUser(t *testing.T) {
 	helper := test.NewHelper(t, test.GetTestDatabaseNameForCaller(), test.DropTestDB)
 	defer helper.Close(t, test.DropTestDB)
 
-	env := biz.NewEnv(helper.CfgModule, boot.DBModule, group.Module, user.Module)
+	env := biz.NewEnv(helper.CfgModule, boot.DBModule, boot.ToolModule, group.Module, user.Module)
 	env.Boot()
 	defer env.Close()
 
@@ -73,5 +74,5 @@ func TestAddUser(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, insertU.Username, u.Username)
 	})
-	assert.Nil(t, err)
+	assert.Nil(t, err, utl.FnErrorString(err))
 }

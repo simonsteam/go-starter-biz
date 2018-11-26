@@ -1,12 +1,10 @@
 package group
 
 import (
-	"local/biz"
 	"local/biz/mdl"
 
 	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
-	vld "gopkg.in/go-playground/validator.v9"
 )
 
 type repoImpl struct {
@@ -14,11 +12,6 @@ type repoImpl struct {
 }
 
 func (r repoImpl) Create(model *mdl.Group) error {
-	v := vld.New()
-	vldErr := v.Struct(model)
-	if vldErr != nil {
-		return biz.NewErr(biz.CodeBadRequest, vldErr.Error())
-	}
 	err := r.db.Insert(model)
 	return err
 }
@@ -42,7 +35,7 @@ func (r repoImpl) DeleteAll() (orm.Result, error) {
 		Delete()
 }
 
-func (r repoImpl) ListAllWhereUserIn(userID uint32) (*[]mdl.Group, error) {
+func (r repoImpl) ListAllWhereUserIn(userID int) (*[]mdl.Group, error) {
 	sql := `
 	select g.* from "group" as g
 	left join user_group ug on ug.group_id = g.id

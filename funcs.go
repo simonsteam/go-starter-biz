@@ -1,10 +1,9 @@
 package biz
 
 import (
-	"context"
 	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
-	// "errors"
+	"errors"
 	"io/ioutil"
 	"log"
 	"runtime"
@@ -14,25 +13,14 @@ import (
 	"local/biz/mdl"
 )
 
-const (
-	// CtxUserIDKey userID key in context
-	CtxUserIDKey = "userIDKey"
-)
-
 // GetModDir go.mod directory
 func GetModDir() string {
 	_, file, _, _ := runtime.Caller(0)
 	return file[:strings.LastIndex(file, "/")]
 }
 
-// GetSubFromContext .
-func GetSubFromContext(ctx context.Context) (Sub, bool) {
-	sub, ok := ctx.Value(CtxUserIDKey).(Sub)
-	return sub, ok
-}
-
 // NewErr create a new error with code,msg,time.Now()
-func NewErr(code uint32, msg string) Err {
+func NewErr(code int, msg string) Err {
 	return Err{
 		Code: code,
 		Msg:  msg,
@@ -73,7 +61,7 @@ func MigrationDatabaseFromSQL(db *pg.DB) error {
 	for _, sql := range sqls {
 		_, e := db.Exec(strings.Trim(sql, "\n"))
 		if e != nil {
-			return e
+			return errors.New(sql + e.Error())
 		}
 	}
 	return nil

@@ -39,6 +39,8 @@ func fnDropTestDB(t *testing.T, superDB *pg.DB, dropDBName string) {
 	_, err := superDB.Exec(sql)
 	assert.Nil(t, err)
 }
+
+// NewHelper create test helper
 func NewHelper(t *testing.T, testDBName string, dropTestDBFirst bool) Helper {
 	superDB := pg.Connect(&pg.Options{
 		Database: "biz_test_template",
@@ -68,7 +70,10 @@ func NewHelper(t *testing.T, testDBName string, dropTestDBFirst bool) Helper {
 		Password: TestPassword,
 		PoolSize: 2,
 	})
-	biz.MigrationDatabaseFromSQL(testDB) //TODO production env should not migrate database sql
+	err = biz.MigrationDatabaseFromSQL(testDB) //TODO production env should not migrate database sql
+	if err != nil {
+		t.Fatalf("could not MigrationDatabaseFromSQL, %v", err)
+	}
 	testDB.Close()
 
 	helper.CfgModule = biz.Module{
@@ -87,9 +92,9 @@ func NewHelper(t *testing.T, testDBName string, dropTestDBFirst bool) Helper {
 
 // Helper helper in testing,create test database and provide test config
 type Helper struct {
-	SuperDB    *pg.DB
+	SuperDB    *pg.DB // used to create and drop database
 	TestDBName string
-	CfgModule  biz.Module
+	CfgModule  biz.Module // a replace for normal config module
 }
 
 // Close close helper,and drop test database

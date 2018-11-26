@@ -80,6 +80,7 @@ create table public.branch
     del_time timestamptz,
     no text, --编号
     name text not null, --名字
+    domain_id bigint, -- domain
     mgr_user_id bigint, --管理员id
     address text not null, -- 地址
     tel text not null, -- 电话
@@ -99,3 +100,42 @@ WITH (
 
 ALTER TABLE public.user ADD CONSTRAINT user_branch_fkey
    FOREIGN KEY (branch_id) REFERENCES branch(id);
+
+--##
+
+create table public.demo_data (
+    id bigserial NOT NULL,
+    add_time timestamptz not null,
+    upd_time timestamptz, 
+    del_time timestamptz,
+    branch_id bigint, -- domain
+    owner_id bigint,
+    content text,
+    PRIMARY KEY (id),
+    FOREIGN KEY ("owner_id") REFERENCES "user" ("id"),
+    FOREIGN KEY ("branch_id") REFERENCES "branch" ("id")
+)
+with (
+    OIDS = false
+);
+
+--## 
+
+create table public.domain (
+    id bigserial NOT NULL,
+    add_time timestamptz not null,
+    upd_time timestamptz, 
+    del_time timestamptz,
+    name text not null,
+    mgr_user_id bigint,
+    PRIMARY KEY (id),
+    FOREIGN KEY ("mgr_user_id") REFERENCES "user" ("id")
+)
+with (
+    OIDS = false
+);
+
+--##
+
+ALTER TABLE public.branch ADD CONSTRAINT branch_domain_fkey
+   FOREIGN KEY (domain_id) REFERENCES public.domain(id);

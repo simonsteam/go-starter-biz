@@ -26,7 +26,7 @@ var Module = biz.Module{
 type RepoI interface {
 	Create(*mdl.Group) error
 	ListAll() (*[]mdl.Group, error)
-	ListAllWhereUserIn(uint32) (*[]mdl.Group, error)
+	ListAllWhereUserIn(int) (*[]mdl.Group, error)
 	DeleteByID(string) (orm.Result, error)
 	DeleteAll() (orm.Result, error)
 }

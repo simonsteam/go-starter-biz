@@ -9,7 +9,7 @@ type repoImpl struct {
 	db *pg.DB
 }
 
-func (r repoImpl) Create(model *mdl.Config) (uint32, error) {
+func (r repoImpl) Create(model *mdl.Config) (int, error) {
 	_, err := r.db.Model(model).
 		Returning("id").
 		Insert()

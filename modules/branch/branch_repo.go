@@ -5,22 +5,20 @@ import (
 	"local/biz/mdl"
 
 	"github.com/go-pg/pg"
-	// "github.com/go-pg/pg/orm"
-	// vld "gopkg.in/go-playground/validator.v9"
 )
 
 type repoImpl struct {
 	db *pg.DB
 }
 
-func (r repoImpl) Create(model *mdl.Branch) (uint32, error) {
+func (r repoImpl) Create(model *mdl.Branch) (int, error) {
 	_, err := r.db.Model(model).
 		Returning("id").
 		Insert()
 	return model.Base.ID, err
 }
 
-func (r repoImpl) SelectByID(id uint32) (*mdl.Branch, error) {
+func (r repoImpl) SelectByID(id int) (*mdl.Branch, error) {
 	model := &mdl.Branch{Base: mdl.Base{ID: id}}
 	err := r.db.Select(model)
 	return model, err
@@ -39,7 +37,7 @@ func (r repoImpl) SelectAll() (*[]mdl.Branch, error) {
 	return &models, err
 }
 
-func (r repoImpl) DeleteByID(id uint32) error {
+func (r repoImpl) DeleteByID(id int) error {
 	_, err := r.db.Model(&mdl.Branch{}).
 		Where("id = ?", id).
 		Delete()

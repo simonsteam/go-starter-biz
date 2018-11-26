@@ -6,19 +6,13 @@ import (
 
 	"github.com/go-pg/pg"
 	// "github.com/go-pg/pg/orm"
-	vld "gopkg.in/go-playground/validator.v9"
 )
 
 type repoImpl struct {
 	db *pg.DB
 }
 
-func (r repoImpl) Create(model *mdl.User) (uint32, error) {
-	v := vld.New()
-	vldErr := v.Struct(model)
-	if vldErr != nil {
-		return 0, vldErr
-	}
+func (r repoImpl) Create(model *mdl.User) (int, error) {
 	err := r.db.Insert(model)
 	return model.ID, err
 }
@@ -35,13 +29,13 @@ func (r repoImpl) FindByUsername(username string) (*mdl.User, error) {
 	return user, err
 }
 
-func (r repoImpl) FindByID(id uint32) (*mdl.User, error) {
+func (r repoImpl) FindByID(id int) (*mdl.User, error) {
 	u := &mdl.User{Base: mdl.Base{ID: id}}
 	err := r.db.Select(u)
 	return u, err
 }
 
-func (r repoImpl) SetGroups4User(userID uint32, groupIDs *[]string) error {
+func (r repoImpl) SetGroups4User(userID int, groupIDs *[]string) error {
 	var userGroups []mdl.UserGroup
 	for _, gid := range *groupIDs {
 		userGroups = append(userGroups, mdl.UserGroup{

@@ -1,7 +1,10 @@
 package test
 
 import (
+	"local/biz/ac"
 	"local/biz/mdl"
+	"local/biz/modules/config"
+	"local/biz/modules/demo"
 )
 
 // some test datas
@@ -9,12 +12,17 @@ const (
 	TestDBUser   = "biz_test"
 	TestPassword = "pwd"
 
-	DropTestDBBeforeStart     = true
-	DontDropTestDBBeforeStart = false
-	KeepTestDBYes             = true
-	KeepTestDBNo              = false
-	DropTestDB                = true
-	NotDropTestDB             = false
+	DropTestDB    = true
+	NotDropTestDB = false
+)
+
+// some permissions
+var (
+	ConfigPermissions   []ac.Permission = []ac.Permission{config.PermissionCreateConfig, config.PermissionReadConfig, config.PermissionEditConfig}
+	DemoDataPermissions []ac.Permission = []ac.Permission{demo.PermissionUpdateContent, demo.PermissionReadData}
+
+	// AllPermissions []string = append(ConfigPermissions, DemoDataPermissions...)
+	// AllStringPermissions []string = AllPermissions
 )
 
 // some test datas, should be used for testing only
@@ -27,7 +35,13 @@ var (
 		ID:          "TGROUP3",
 		Name:        "管理员",
 		Permissions: []string{"ADMIN", "USER", "WATCHER"},
-	}}
+	},
+	// {
+	// 	ID: "SUPER",
+	// 	Name: "超级管理员super admin",
+	// 	Permissions: AllPermissions,
+	// }
+	}
 
 	TestDataVldUsers = []mdl.User{{
 		Username: "userOK1",

@@ -1,12 +1,10 @@
 package mdl
 
-import ()
-
 // User 最基本的账号数据结构，账号一旦创建就无法在功能上删除，可以标记废弃、离职
 type User struct {
 	tableName struct{} `sql:"user"`
 	Base
-	BranchID    uint32    `json:"branchId"` // 分部Id，除系统管理角色外的账号必须指定门店
+	BranchID    int       `json:"branchId"` // 分部Id，除系统管理角色外的账号必须指定门店
 	Branch      *Branch   `json:"branch" pg:"fk:branch_id"`
 	Description *string   `json:"description,omitempty"`            // 店长备注
 	No          *string   `json:"no,omitempty"`                     // 员工编号，系统内唯一

@@ -144,7 +144,7 @@ type BootFunc struct {
 
 // Err error with code,message,time
 type Err struct {
-	Code uint32    `json:"code"`
+	Code int       `json:"code"`
 	Msg  string    `json:"msg"`
 	Time time.Time `json:"time"`
 }

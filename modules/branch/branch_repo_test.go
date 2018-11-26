@@ -1,6 +1,7 @@
 package branch_test
 
 import (
+	"local/biz/utl"
 	"github.com/stretchr/testify/assert"
 	"local/biz"
 	"local/biz/modules/boot"
@@ -12,7 +13,7 @@ import (
 	// "local/biz/mdl"
 )
 
-func assertNilErrAndIDGt0(t *testing.T, id uint32, err error) {
+func assertNilErrAndIDGt0(t *testing.T, id int, err error) {
 	assert.Nil(t, err)
 	assert.True(t, id > 0)
 }
@@ -21,7 +22,7 @@ func TestCRUD(t *testing.T) {
 	helper := test.NewHelper(t, test.GetTestDatabaseNameForCaller(), test.DropTestDB)
 	defer helper.Close(t, test.DropTestDB)
 
-	env := biz.NewEnv(helper.CfgModule, boot.DBModule, user.Module, branch.Module, group.Module)
+	env := biz.NewEnv(helper.CfgModule, boot.DBModule, boot.ToolModule, user.Module, branch.Module, group.Module)
 	env.Boot()
 	defer env.Close()
 
@@ -43,5 +44,5 @@ func TestCRUD(t *testing.T) {
 		assert.Nil(t, err)
 
 	})
-	assert.Nil(t, err)
+	assert.Nil(t, err, utl.FnErrorString(err))
 }

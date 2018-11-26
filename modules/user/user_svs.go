@@ -1,6 +1,8 @@
 package user
 
 import (
+	"local/biz/ac"
+	// "local/biz/utl"
 	"context"
 	"fmt"
 
@@ -14,7 +16,7 @@ import (
 type svsImpl struct {
 	repo      RepoI
 	groupRepo group.RepoI
-	vld       vld.Validate
+	vld       *vld.Validate
 }
 
 func (s svsImpl) Register(ctx context.Context, p *RegisterUserParam) error {
@@ -56,16 +58,16 @@ outer:
 	return s.repo.SetGroups4User(p.UserID, p.GroupIDs)
 }
 
-func (s svsImpl) AddUser(ctx context.Context, user *mdl.User) (id uint32, err error) {
+func (s svsImpl) AddUser(ctx context.Context, user *mdl.User) (id int, err error) {
 	return s.repo.Create(user)
 }
 
-func (s svsImpl) FindByID(ctx context.Context, id uint32) (*mdl.User, error) {
+func (s svsImpl) FindByID(ctx context.Context, id int) (*mdl.User, error) {
 	return s.repo.FindByID(id)
 }
 
-func (s svsImpl) GetUserAsSub(userID uint32) (biz.Sub, error) {
-	nilSub := biz.Sub{}
+func (s svsImpl) GetUserAsSub(userID int) (ac.Sub, error) {
+	nilSub := ac.Sub{}
 	u, err := s.repo.FindByID(userID)
 	if err != nil {
 		return nilSub, err
@@ -82,12 +84,12 @@ func (s svsImpl) GetUserAsSub(userID uint32) (biz.Sub, error) {
 		}
 	}
 
-	return biz.Sub{
-		ID:          u.ID,
+	return ac.Sub{
+		ID:          fmt.Sprint(u.ID),
 		Name:        u.RealName,
-		Type:        biz.SubTypeHuman,
+		Type:        ac.SubTypeHuman,
 		Permissions: permissions,
-		Domains:     []uint32{u.BranchID}, // TODO
+		Domains:     []string{fmt.Sprint(u.BranchID)},
 	}, nil
 
 }

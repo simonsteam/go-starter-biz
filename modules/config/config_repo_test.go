@@ -12,7 +12,7 @@ import (
 )
 
 func TestCRUd(t *testing.T) {
-	helper := test.NewHelper(t, test.GetTestDatabaseNameForCaller(), test.DropTestDB)
+	helper := test.NewHelper(t, "t_config_repo_crud", test.DropTestDB)
 	defer helper.Close(t, test.DropTestDB)
 
 	env := biz.NewEnv(helper.CfgModule, boot.DBModule, config.Module)

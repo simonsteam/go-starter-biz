@@ -4,6 +4,8 @@ import (
 	"github.com/go-pg/pg"
 	"local/biz"
 	"local/biz/utl"
+
+	vld "gopkg.in/go-playground/validator.v9"
 )
 
 // some const
@@ -50,6 +52,16 @@ var (
 		},
 		CloseFn: func(db *pg.DB) error {
 			return db.Close()
+		},
+	}
+
+	// ToolModule validate
+	ToolModule = biz.Module{
+		Name:         "validate module",
+		Introduction: "provide struct validator(with some custom func)",
+		Provider: func() *vld.Validate {
+			//TODO register custom things
+			return vld.New()
 		},
 	}
 )

@@ -1,6 +1,7 @@
 package group_test
 
 import (
+	"local/biz/utl"
 	"local/biz/modules/user"
 	"testing"
 
@@ -21,12 +22,6 @@ func TestCreate(t *testing.T) {
 		Val    mdl.Group
 		Err    bool
 	}{
-		{
-			"should be validate error",
-			nil,
-			mdl.Group{ID: "GRP1"},
-			true,
-		},
 		{
 			"should create success",
 			nil,
@@ -95,7 +90,7 @@ func TestListAllWhereUserIn(t *testing.T) {
 	helper := test.NewHelper(t, test.GetTestDatabaseNameForCaller(), test.DropTestDB)
 	defer helper.Close(t, test.DropTestDB)
 
-	env := biz.NewEnv(helper.CfgModule, boot.DBModule, group.Module, user.Module)
+	env := biz.NewEnv(helper.CfgModule, boot.DBModule, boot.ToolModule, group.Module, user.Module)
 	env.Boot()
 	defer env.Close()
 
@@ -123,5 +118,5 @@ func TestListAllWhereUserIn(t *testing.T) {
 
 	})
 
-	assert.Nil(t, err)
+	assert.Nil(t, err, utl.FnErrorString(err))
 }

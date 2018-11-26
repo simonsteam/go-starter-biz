@@ -2,10 +2,11 @@ package biz
 
 // some common codes
 const (
-	CodeBadRequest   = 400
-	CodeNotExists    = 404
-	CodeUnauthorized = 401
-	CodeForbidden    = 403
+	CodeBadRequest    = 400
+	CodeNotExists     = 404
+	CodeUnauthorized  = 401
+	CodeForbidden     = 403
+	CodeInternalError = 501
 
 	TestDatabasePrefix = "t_"
 )

@@ -6,7 +6,9 @@ type Branch struct {
 	Base
 	No           string      `json:"no" sql:",notnull"`   // 编号，由管理员手工填写
 	Name         string      `json:"name" sql:",notnull"` // 门店名称
-	MgrUserID    uint32      `json:"mgrUserId"`           // 门店店长ID
+	DomainID     int         `json:"domainID"`
+	Domain     Domain      `json:"domain" pg:"fk:domain_id"`
+	MgrUserID    int         `json:"mgrUserId"` // 门店店长ID
 	MgrUser      *User       `json:"mgrUser" pg:"fk:mgr_user_id"`
 	Address      string      `json:"address,omitempty" sql:",notnull"`      // 地址
 	Tel          string      `json:"tel,omitempty" sql:",notnull"`          // 门店联系电话
